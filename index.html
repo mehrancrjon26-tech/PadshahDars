@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#f7fbff">
+<title>👑 پادشاه حل مسئله — ریاضی هفتم</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;min-height:100%;font-family:Tahoma,Arial,sans-serif;background:#f5faff;color:#17344d}
+body{padding:12px}
+.app{max-width:760px;margin:auto}
+.top{background:#fff;border:1px solid #dcecf7;border-radius:26px;padding:18px;box-shadow:0 8px 28px rgba(42,111,160,.08)}
+h1{margin:0;font-size:27px;color:#145f91}.subtitle{margin-top:6px;color:#69869a;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}
+.stat{background:#f0f8fd;border-radius:17px;text-align:center;padding:9px;font-size:13px}
+.stat b{display:block;font-size:21px;margin-top:3px;color:#12669d}
+.card{background:#fff;border:1px solid #dcecf7;border-radius:25px;padding:18px;margin-top:14px;box-shadow:0 8px 28px rgba(42,111,160,.07)}
+.map{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.node{border:0;border-radius:14px;padding:11px 3px;font-size:12px;font-weight:bold;background:#edf3f7;color:#8295a3}
+.node.current{background:#ccecff;color:#07527f;box-shadow:0 0 0 3px #8fd5fb}
+.node.done{background:#dff8e8;color:#147846}
+.node:disabled{opacity:.7}
+.progress{height:9px;background:#edf3f7;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress i{display:block;height:100%;background:#48b6e8;border-radius:20px}
+.badge{display:inline-block;background:#e9f6ff;color:#146b9d;padding:7px 11px;border-radius:12px;font-size:13px;font-weight:bold}
+.question{font-size:20px;font-weight:bold;line-height:2;margin:15px 0}
+.options{display:grid;gap:10px}
+.opt{border:2px solid #dcebf4;background:#fbfdff;border-radius:16px;padding:14px;font-size:17px;text-align:right;color:#17344d}
+.opt:active{transform:scale(.99)}.opt:disabled{opacity:.75}
+.opt.correct{border-color:#48b875;background:#eafff1}.opt.wrong{border-color:#ef7777;background:#fff1f1}
+.msg{min-height:27px;margin-top:13px;font-weight:bold;line-height:1.8}
+.hint{background:#fff9df;border:1px solid #f0dd91;border-radius:15px;padding:12px;line-height:1.8;margin-top:10px}
+.buttons{display:flex;gap:9px;margin-top:13px}
+button.main{flex:1;border:0;border-radius:16px;padding:14px;font-weight:bold;font-size:16px;background:#1670ad;color:white}
+button.alt{flex:1;border:0;border-radius:16px;padding:14px;font-weight:bold;font-size:16px;background:#edf6fb;color:#145b82}
+.hidden{display:none!important}
+.treasure{text-align:center;padding:28px 16px}.chest{font-size:90px}.crown{font-size:66px}.win{font-size:31px;color:#a66b00;font-weight:900;margin:8px}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden}.piece{position:absolute;top:-30px;font-size:24px;animation:fall 3s linear forwards}@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.2}}
+.resetnote{font-size:13px;color:#7891a2;line-height:1.8;margin-top:12px}
+@media(max-width:440px){body{padding:8px}.top,.card{padding:14px;border-radius:21px}.question{font-size:18px}.map{gap:6px}.node{font-size:11px;padding:10px 2px}}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="top">
+<h1>👑 پادشاه حل مسئله</h1>
+<div class="subtitle">ریاضی هفتم • فصل اول: راهبردهای حل مسئله • ۴۰ مأموریت</div>
+<div class="stats">
+<div class="stat">⭐ امتیاز<b id="score">0</b></div>
+<div class="stat">🪙 سکه<b id="coins">0</b></div>
+<div class="stat">❤️ جان<b id="lives">1</b></div>
+</div>
+</section>
+
+<section id="game">
+<div class="card">
+<div><span id="levelBadge" class="badge">🟢 شروع ماجرا</span></div>
+<div class="progress"><i id="bar" style="width:2.5%"></i></div>
+<div id="map" class="map"></div>
+</div>
+
+<div class="card">
+<div id="missionNo" class="badge"></div>
+<div id="question" class="question"></div>
+<div id="options" class="options"></div>
+<div id="msg" class="msg"></div>
+<div id="hint" class="hint hidden"></div>
+<div class="buttons">
+<button class="alt" id="hintBtn">💡 راهنمایی</button>
+<button class="main hidden" id="nextBtn">مرحله بعدی ➜</button>
+</div>
+<div class="resetnote">⚠️ فقط یک جان داری: اگر در هر مرحله جواب اشتباه بدهی، کل بازی از مرحله ۱ شروع می‌شود.</div>
+</div>
+</section>
+
+<section id="treasure" class="card treasure hidden">
+<div class="chest">🎁</div><div class="crown">👑</div>
+<div class="win">تو پادشاه حل مسئله شدی!</div>
+<p>همه ۴۰ مأموریت را فتح کردی.</p>
+<p>⭐ امتیاز نهایی: <b id="finalScore"></b><br>🪙 سکه نهایی: <b id="finalCoins"></b></p>
+<button class="main" id="restart">🔄 شروع دوباره</button>
+</section>
+</div>
+<div id="confetti" class="confetti"></div>
+
+<script>
+const missions=[["علی ۸ مداد داشت و ۳ مداد دیگر خرید. چند مداد دارد؟",["۱۰","۱۱","۱۲","۱۳"],1,"مسئله را به یک جمع ساده تبدیل کن."],["در یک صف، سارا نفر چهارم و مریم نفر هفتم است. چند نفر بین آن‌ها هستند؟",["۲","۳","۴","۵"],1,"جایگاه‌ها را روی یک خط تصور کن."],["الگو را کامل کن: ۲، ۵، ۸، ۱۱، ؟",["۱۲","۱۳","۱۴","۱۵"],2,"اختلاف دو جمله پشت سر هم را پیدا کن."],["یک مستطیل طول ۷ و عرض ۳ دارد. محیط آن چند است؟",["۱۰","۲۰","۲۱","۲۴"],1,"رسم شکل و جمع چهار ضلع کمک می‌کند."],["سه عدد پشت سر هم مجموعشان ۲۴ است. عدد وسط چیست؟",["۶","۷","۸","۹"],2,"عدد وسط را x بگیر؛ دو عدد دیگر x−1 و x+1 هستند."],["در یک کلاس ۲۰ نفره، ۱۲ نفر فوتبال و ۹ نفر والیبال دوست دارند. حداقل چند نفر ممکن است هر دو را دوست داشته باشند؟",["۰","۱","۲","۳"],2,"برای کمینه هم‌پوشانی، تعدادها را با کل مقایسه کن."],["با سکه‌های ۱۰۰۰ و ۲۰۰۰ تومانی، به چند روش می‌توان دقیقاً ۵۰۰۰ تومان ساخت؟",["۲","۳","۴","۵"],1,"حالت‌های تعداد سکه ۲۰۰۰ تومانی را جداگانه بنویس."],["عدد بعدی چیست؟ ۱، ۲، ۴، ۷، ۱۱، ؟",["۱۵","۱۶","۱۷","۱۸"],1,"اختلاف‌ها را بررسی کن: ۱،۲،۳،۴..."],["چهار نفر در اتاق هستند. هر نفر با هر نفر دیگر فقط یک بار دست می‌دهد. چند دست‌دادن؟",["۴","۵","۶","۸"],2,"برای هر جفت فقط یک دست‌دادن حساب کن."],["یک عدد دو رقمی داریم که رقم دهگانش ۳ تا بیشتر از رقم یکان است. مجموع رقم‌ها ۹ است. عدد چیست؟",["۳۶","۴۵","۵۴","۶۳"],1,"از جدول حالت‌ها یا آزمون منظم استفاده کن."],["با ارقام ۱،۲،۳ چند عدد دو رقمیِ بدون تکرار می‌توان ساخت؟",["۳","۶","۹","۱۲"],1,"برای دهگان ۳ انتخاب و برای یکان ۲ انتخاب داری."],["یک حلزون روزی ۳ متر بالا می‌رود و شب ۱ متر پایین می‌آید. برای رسیدن به دیوار ۱۰ متری چند روز لازم دارد؟",["۴","۵","۶","۷"],1,"شب آخر را بعد از رسیدن به بالای دیوار حساب نکن."],["یک ساعت عقربه‌ای را به ۱۲ قسمت تقسیم کرده‌ایم. فاصله بین دو عدد کنار هم چند درجه است؟",["۲۰","۳۰","۴۵","۶۰"],1,"یک دور کامل ۳۶۰ درجه است."],["یک باغ مستطیل‌شکل ۱۲ متر طول و ۸ متر عرض دارد. اگر دور آن یک مسیر یک‌متری ساخته شود، برای حل مسئله ابتدا چه چیزی مهم است؟",["محاسبه محیط جدید","جمع کردن فقط طول‌ها","حذف عرض","حدس زدن"],0,"شکل جدید را رسم کن و ابعاد بیرونی را مشخص کن."],["عدد طبیعی‌ای را پیدا کن که اگر ۵ واحد به آن اضافه کنیم، دو برابر خودش شود.",["۳","۴","۵","۶"],2,"معادله x+5=2x بساز."],["سه جعبه A، B و C داریم. یکی طلا دارد. روی A نوشته «طلا اینجاست»، روی B نوشته «طلا در A نیست»، و روی C نوشته «طلا در B نیست». فقط یکی از نوشته‌ها درست است. طلا کجاست؟",["A","B","C","اطلاعات کافی نیست"],1,"هر حالت را جداگانه آزمایش کن و تعداد جملات درست را بشمار."],["در یک جدول ۳×۳ چند مربع ۱×۱ وجود دارد؟",["۶","۹","۱۲","۱۵"],1,"خانه‌های کوچک را یکی‌یکی بشمار."],["در همان جدول ۳×۳ چند مربع با هر اندازه وجود دارد؟",["۹","۱۲","۱۴","۱۶"],2,"مربع‌های ۱×۱، ۲×۲ و ۳×۳ را جداگانه بشمار."],["از نقطه A به B سه راه و از B به C دو راه داریم. چند مسیر مختلف A تا C داریم؟",["۵","۶","۸","۹"],1,"برای هر راه A→B دو انتخاب B→C وجود دارد."],["یک عدد بین ۱ و ۵۰ است. بر ۲ و ۳ بخش‌پذیر است ولی بر ۵ بخش‌پذیر نیست. چند عدد ممکن است؟",["۶","۷","۸","۹"],1,"مضرب‌های ۶ را تا ۵۰ بنویس و مضرب‌های ۳۰ را حذف کن."],["چهار عدد فرد پشت سر هم مجموعشان ۴۰ است. کوچک‌ترین عدد؟",["۵","۷","۹","۱۱"],1,"اعداد فرد پشت سر هم اختلاف ۲ دارند."],["اگر ۵ کارگر کاری را در ۱۲ روز انجام دهند و سرعت همه یکسان باشد، ۱۰ کارگر چند روزه انجام می‌دهند؟",["۴","۶","۸","۱۰"],1,"با دو برابر شدن تعداد کارگرها، زمان نصف می‌شود."],["در یک مسابقه، هر تیم با هر تیم دیگر یک بار بازی می‌کند. اگر ۶ تیم باشند، چند بازی برگزار می‌شود؟",["۱۲","۱۵","۱۸","۳۰"],1,"هر بازی یک جفت تیم است."],["با ارقام ۰،۱،۲،۳ چند عدد سه‌رقمیِ بدون تکرار می‌توان ساخت؟",["۱۲","۱۸","۲۰","۲۴"],1,"رقم صدگان نمی‌تواند صفر باشد."],["دو عدد طبیعی داریم که حاصل‌ضربشان ۳۶ و مجموعشان کمترین مقدار ممکن است. مجموع چیست؟",["۱۲","۱۳","۱۴","۱۵"],0,"جفت‌های مقسوم‌علیه ۳۶ را بررسی کن؛ نزدیک‌ترین دو عدد به هم بهترین‌اند."],["در یک کلاس ۳۰ نفره، ۱۸ نفر عضو گروه A و ۱۷ نفر عضو گروه B هستند. حداقل چند نفر عضو هر دو گروه‌اند؟",["۳","۵","۷","۱۰"],2,"۱۸+۱۷ از ۳۰ بیشتر است؛ مقدار اضافه، حداقل هم‌پوشانی است."],["یک عدد سه‌رقمی داریم که مجموع رقم‌هایش ۱۲ است، رقم صدگان دو برابر یکان است و رقم دهگان ۳ است. عدد چیست؟",["۳۶۳","۴۵۳","۶۳۳","۶۴۲"],2,"اگر یکان x باشد، صدگان 2x است."],["روی سه کارت عددهای ۲،۵،۸ نوشته شده. با قرار دادن آن‌ها کنار هم چند عدد سه‌رقمی مختلف می‌توان ساخت؟",["۳","۶","۹","۱۲"],1,"ترتیب کارت‌ها مهم است."],["یک مسئله ۴ مرحله دارد. تعداد حالت‌های ممکن در هر مرحله به‌ترتیب ۲،۳،۲ و ۴ است و هر انتخاب با همه انتخاب‌های مرحله بعد قابل ترکیب است. چند حالت نهایی؟",["۲۴","۴۸","۶۰","۷۲"],1,"تعداد انتخاب‌ها را در هم ضرب کن."],["عدد بعدی را پیدا کن: ۲، ۶، ۱۲، ۲۰، ۳۰، ؟",["۳۸","۴۰","۴۲","۴۴"],2,"جمله nام را به شکل n(n+1) بررسی کن."],["یک صفحه شطرنج ۸×۸ داریم. چند مستطیل مختلف با انتخاب خطوط افقی و عمودی می‌توان ساخت؟",["۱۲۹۶","۱۶۲۴","۱۷۲۸","۲۰۴۸"],0,"برای هر مستطیل دو خط افقی و دو خط عمودی انتخاب می‌شود؛ ۹ خط از هر جهت داریم."],["در یک مهمانی ۱۰ نفر هستند و هر نفر با هر نفر دیگر یک بار دست می‌دهد. اگر ۳ نفر با هم دست ندهند و هیچ‌کدام از این سه نفر با دیگری دست ندهد، چند دست‌دادن انجام می‌شود؟",["۳۳","۳۶","۳۹","۴۲"],0,"کل جفت‌ها را حساب کن و سه جفت بین آن سه نفر را کم کن."],["از بین اعداد ۱ تا ۱۰۰، چند عدد نه بر ۲، نه بر ۳ و نه بر ۵ بخش‌پذیرند؟",["۲۵","۲۶","۲۷","۲۸"],1,"از اصل شمول و عدم شمول استفاده کن."],["یک عدد چهاررقمی داریم. رقم هزارگان ۲ برابر رقم یکان است؛ رقم صدگان ۳ برابر رقم یکان؛ رقم دهگان ۱ واحد کمتر از رقم صدگان؛ مجموع رقم‌ها ۱۸ است. عدد چیست؟",["۴۳۶۵","۶۵۳۲","۴۵۳۶","۲۳۶۷"],0,"یکان را x بگیر و همه رقم‌ها را برحسب x بنویس."],["روی یک صفحه ۵ نقطه داریم که هیچ سه نقطه‌ای هم‌خط نیستند. با وصل کردن هر دو نقطه یک پاره‌خط می‌سازیم. چند پاره‌خط داریم؟",["۵","۸","۱۰","۱۵"],2,"هر پاره‌خط یک جفت از نقطه‌هاست."],["یک صفحه ۶ نقطه دارد که هیچ سه نقطه‌ای هم‌خط نیستند. اگر همه جفت‌ها را وصل کنیم، چند مثلث با انتخاب سه نقطه داریم؟",["۱۵","۱۸","۲۰","۲۴"],2,"هر مثلث با انتخاب ۳ نقطه از ۶ نقطه ساخته می‌شود."],["یک رمز چهاررقمی با رقم‌های ۱ تا ۶ ساخته می‌شود؛ تکرار مجاز نیست، رقم اول زوج و رقم آخر فرد است. چند رمز ممکن است؟",["۸۱","۹۶","۱۰۸","۱۲۰"],2,"جایگاه اول ۳ انتخاب و آخر ۳ انتخاب دارد؛ دو جایگاه وسط را از ۴ رقم باقی‌مانده پر کن."],["در یک شبکه ۴×۴، از گوشه پایین چپ به گوشه بالا راست فقط می‌توان حرکت رو به بالا یا راست کرد. چند مسیر کوتاه وجود دارد؟",["۲۰","۲۴","۳۵","۴۰"],0,"در هر مسیر دقیقاً ۴ حرکت راست و ۴ حرکت بالا داری؛ تعداد ترتیب‌ها را حساب کن."],["یک عدد طبیعی n را در نظر بگیر. اگر n، n+2 و n+4 هر سه عدد اول باشند، n کدام است؟",["۳","۵","۷","۹"],0,"سه عدد فرد پشت سر همِ با فاصله ۲ را بررسی کن؛ عدد ۳ حالت ویژه ایجاد می‌کند."],["مرحله نهایی تیزهوشانی: در یک شبکه ۵×۵، از گوشه بالا-چپ به گوشه پایین-راست فقط با حرکت‌های «راست» و «پایین» و فقط از کوتاه‌ترین مسیرها حرکت می‌کنیم. چند مسیر وجود دارد؟",["۱۲۰","۲۱۰","۲۵۲","۳۲۰"],2,"هر مسیر شامل ۵ حرکت راست و ۵ حرکت پایین است؛ تعداد ترتیب‌های این ۱۰ حرکت را پیدا کن."]];
+let state={current:0,score:0,coins:0,done:[]};
+let answered=false;
+const $=id=>document.getElementById(id);
+
+function save(){localStorage.setItem("padshah40",JSON.stringify(state))}
+function difficulty(i){
+ if(i<8)return ["🟢 آسان","#dff5e8"];
+ if(i<16)return ["🔵 متوسط","#e4f3ff"];
+ if(i<24)return ["🟡 سخت","#fff4ce"];
+ if(i<32)return ["🟠 خیلی سخت","#ffe9d5"];
+ return ["🔴 تیزهوشانی","#ffe0e0"];
+}
+function renderMap(){
+ const m=$("map");m.innerHTML="";
+ missions.forEach((_,i)=>{
+   const b=document.createElement("button");
+   b.className="node "+(state.done.includes(i)?"done":i===state.current?"current":"");
+   b.textContent=state.done.includes(i)?"✓ "+(i+1):"مرحله "+(i+1);
+   b.disabled=i>state.current;
+   if(i<=state.current)b.onclick=()=>{state.current=i;render()};
+   m.appendChild(b);
+ });
+}
+function render(){
+ if(state.current>=40){win();return}
+ $("game").classList.remove("hidden");$("treasure").classList.add("hidden");
+ $("score").textContent=state.score;$("coins").textContent=state.coins;$("lives").textContent="1";
+ const d=difficulty(state.current);
+ $("levelBadge").textContent=d[0];
+ $("levelBadge").style.background=d[1];
+ $("missionNo").textContent="🎯 مأموریت "+(state.current+1)+" از ۴۰";
+ $("bar").style.width=((state.current+1)/40*100)+"%";
+ const q=missions[state.current];
+ $("question").textContent=q[0];
+ $("options").innerHTML="";
+ q[1].forEach((x,i)=>{
+   const b=document.createElement("button");
+   b.className="opt";b.textContent=x;
+   b.onclick=()=>answer(i,b);
+   $("options").appendChild(b);
+ });
+ $("msg").textContent="";$("hint").classList.add("hidden");$("hint").textContent="";
+ $("nextBtn").classList.add("hidden");answered=false;renderMap();
+}
+function answer(i,btn){
+ if(answered)return;
+ const q=missions[state.current];
+ if(i!==q[2]){
+   btn.classList.add("wrong");
+   document.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+   $("msg").textContent="💔 باختی! پاسخ اشتباه بود؛ بازی از مرحله ۱ شروع می‌شود.";
+   setTimeout(resetGame,1200);
+   return;
+ }
+ answered=true;
+ document.querySelectorAll(".opt").forEach(x=>x.disabled=true);
+ btn.classList.add("correct");
+ const reward=100+(state.current*35);
+ const coins=5+Math.floor(state.current/2);
+ state.score+=reward;state.coins+=coins;state.done.push(state.current);
+ $("msg").textContent="🎉 درست بود! +"+reward+" امتیاز و +"+coins+" سکه";
+ $("nextBtn").classList.remove("hidden");save();renderMap();
+}
+function next(){
+ state.current++;
+ save();
+ if(state.current>=40)win();else render();
+}
+function hint(){
+ const h=$("hint");
+ h.textContent="💡 "+missions[state.current][3];
+ h.classList.remove("hidden");
+}
+function resetGame(){
+ state={current:0,score:0,coins:0,done:[]};
+ localStorage.removeItem("padshah40");
+ $("confetti").innerHTML="";
+ render();
+}
+function win(){
+ $("game").classList.add("hidden");$("treasure").classList.remove("hidden");
+ $("finalScore").textContent=state.score;$("finalCoins").textContent=state.coins;
+ const c=$("confetti");c.innerHTML="";
+ for(let i=0;i<55;i++){
+   const p=document.createElement("span");p.className="piece";
+   p.textContent=["🎉","⭐","✨","👑"][i%4];
+   p.style.left=Math.random()*100+"%";
+   p.style.animationDelay=Math.random()*1.5+"s";c.appendChild(p);
+ }
+}
+$("nextBtn").onclick=next;
+$("hintBtn").onclick=hint;
+$("restart").onclick=resetGame;
+render();
+</script>
+</body>
+</html>
